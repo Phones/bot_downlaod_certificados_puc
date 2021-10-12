@@ -10,4 +10,4 @@ Por fim, é necessario a biblioteca selenium.
 
 pip install selenium
 
-Com tudo finalizado, basta executar "make run" em um terminal que esteja aberto na pasta do bot. Ao iniciar a execução digite seu nome completo e então o bot começara a pesquisa.
+Com tudo finalizado, basta executar "make run" em um terminal que esteja aberto na pasta do bot. Ao iniciar a execução, digite seu nome completo e então o bot começara a pesquisa.
