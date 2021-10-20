@@ -16,8 +16,13 @@ caminho_pasta_pdfs = verifica_e_cria_pasta_pdfs(nome_buscar)
 navegador = cria_driver(caminho_pasta_pdfs)
 navegador.get("https://sites.pucgoias.edu.br/certificados/")
 
+# Coleta a quantidade de eventos que existem
+xpath = '/html/body/div/div[1]/div/table/tbody/tr'
+espera_um_elemento_por_xpath(navegador, xpath, 10)
+quant_eventos = len(navegador.find_elements_by_xpath(xpath)) + 1
+
 nomes_eventos_nome_existe = ''
-for i in range(1, 1623):
+for i in range(1, quant_eventos):
     print("num: ", i)
     # Clica no evento
     xpath_evento = '/html/body/div/div[1]/div/table/tbody/tr[' + str(i) + ']/td/a'
