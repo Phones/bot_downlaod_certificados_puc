@@ -2,7 +2,10 @@ from Helpers.helpers import *
 
 
 class BotDownloadCertificado:
-    def __init__(self, nome_buscar) -> None:
+    def __init__(self, nome_buscar, ini, fim) -> None:
+        # Inicio e Fim do range de busca da thread
+        self.ini, self.fim = ini, fim
+
         # Nome que será buscado nos eventos
         self.nome_buscar = nome_buscar.upper()
 
@@ -20,9 +23,6 @@ class BotDownloadCertificado:
 
         # Instancia o chromedriver
         self.navegador = cria_driver(self.caminho_para_pasta_pdfs)
-
-        # Acessa a pagina com todos os eventos
-        self.navegador.get(self.url)
 
     def verifica_e_cria_pasta_pdfs(self):
         caminho =  os.getcwd() + '/' + self.nome_buscar.replace(' ', '_') + '_PDFs'
@@ -46,25 +46,24 @@ class BotDownloadCertificado:
 
     def get_web_element_evento(self, numero_evento):
         xpath_evento = self.xpath_base + '[' + str(numero_evento) + ']/td/a'
-        return espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_evento, tempo=5)
+        return espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_evento, tempo=30)
 
     def get_lista_nomes_do_evento(self):
         # Coleta a lista de nomes do evento
         xpath_lista_nomes = '/html/body/div/div[1]'
-        return espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_lista_nomes, tempo=5).text.upper()
+        return espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_lista_nomes, tempo=30).text.upper()
 
     def downlaod_vertificado(self, lista_de_nomes_do_evento):
         # Faz download do certificado
         lista_nomes = lista_de_nomes_do_evento.split('\n')
         xpath_do_pdf = '/html/body/div/div[1]/div/table/tbody/tr[' + str(lista_nomes.index(self.nome_buscar)) + ']/td/a'
-        espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_do_pdf, tempo=5).click()
+        espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_do_pdf, tempo=30).click()
 
     def percorre_eventos(self):
         """Passa por todos os eventos disponiveis, verificando se o buscado está na lista de nomes dos eventos"""
 
-        quantidade_eventos = self.coleta_quantidade_de_eventos()
-        print("Total de eventos: ", quantidade_eventos)
-        for i in range(1, quantidade_eventos):
+        print("Inicio do range de busca: {} / Fim do range de busca: {}".format(self.ini, self.fim))
+        for i in range(self.ini, self.fim):
             print("Evento número: ", i)
 
             # WebElement do evento
@@ -83,6 +82,9 @@ class BotDownloadCertificado:
             self.navegador.back()
 
     def exec_bot(self):
+        # Acessa a pagina com todos os eventos
+        self.navegador.get(self.url)
+
         print("Nome para busca: ", self.nome_buscar)
         # Passa por todas os eventos e baixa os certificados
         self.percorre_eventos()
