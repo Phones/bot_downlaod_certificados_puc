@@ -52,5 +52,13 @@ def exec_threads(lista_treads):
 nome_buscar = input("Digite seu nome completo: ")
 quantidade_threads = 2
 
+print("-------------------------------------------------------------------------------")
+print("Por padrão, o bot utilizada apenas 2 threads, porém essa valor é alteravel!")
+resp = input("              Deseja alterar o número de threads? (s/n):      ")
+if resp.upper() == "S":
+    quantidade_threads = int(input("Insira o novo número de threads: "))
+    print("Valor alterado com sucesso!")
+print("-------------------------------------------------------------------------------")
+
 exec_threads(monta_lista_threads(quantidade_threads=quantidade_threads, nome_buscar=nome_buscar))
 print("Tempo gasto com execução: ", time.time() - tempo_ini)
