@@ -1,29 +1,40 @@
-from threading import Thread
 import time
+import platform
+from threading import Thread
 from BotDownloadCertificado import BotDownloadCertificado
 
 tempo_ini = time.time()
 
-def get_quantidade_eventos():
+sistema = ''
+def get_padrao_barra():
+    # Verifica qual sistema está sendo utilizado pelo usuario
+    sistema = platform.system()
+
+    padrao_barra = '/'
+    if sistema == 'Windows':
+        padrao_barra = "\\"
+
+    return padrao_barra
+
+def get_quantidade_eventos(padrao_barra):
     # Apenas acessa a pagina e busca a quantidade de eventos
-    obj_bot = BotDownloadCertificado(nome_buscar=nome_buscar, ini=0, fim=0)
+    obj_bot = BotDownloadCertificado(nome_buscar=nome_buscar, ini=0, fim=0, padrao_barra=padrao_barra)
     obj_bot.navegador.get(obj_bot.url)
     quant = obj_bot.coleta_quantidade_de_eventos()
     obj_bot.navegador.close()
     
     return quant
 
-def monta_lista_threads(quantidade_threads, nome_buscar):
+def monta_lista_threads(quantidade_threads, nome_buscar, padrao_barra):
     lista_threads = []
-    quant_eventos = get_quantidade_eventos()
+    quant_eventos = get_quantidade_eventos(padrao_barra)
     div = int(quant_eventos / quantidade_threads)
     resto = quant_eventos % quantidade_threads
-    
-    print(resto)
+
     ini, fim = 1, div
     for i in range(quantidade_threads):
         print("Inicio: {} / Fim: {}".format(ini, fim))
-        obj_bot = BotDownloadCertificado(nome_buscar=nome_buscar, ini=ini, fim=fim)
+        obj_bot = BotDownloadCertificado(nome_buscar=nome_buscar, ini=ini, fim=fim, padrao_barra=padrao_barra)
         lista_threads.append(Thread(target=obj_bot.exec_bot))
         ini += div
         fim += div
@@ -31,7 +42,7 @@ def monta_lista_threads(quantidade_threads, nome_buscar):
     if resto != 0:
         ini, fim = (quant_eventos - resto), (quant_eventos + 1)
         print("Inicio: {} / Fim: {}".format(ini, fim))
-        obj_bot = BotDownloadCertificado(nome_buscar=nome_buscar, ini=ini, fim=fim)
+        obj_bot = BotDownloadCertificado(nome_buscar=nome_buscar, ini=ini, fim=fim, padrao_barra=padrao_barra)
         lista_threads.append(Thread(target=obj_bot.exec_bot))
 
     return lista_threads
@@ -60,5 +71,5 @@ if resp.upper() == "S":
     print("Valor alterado com sucesso!")
 print("-------------------------------------------------------------------------------")
 
-exec_threads(monta_lista_threads(quantidade_threads=quantidade_threads, nome_buscar=nome_buscar))
+exec_threads(monta_lista_threads(quantidade_threads=quantidade_threads, nome_buscar=nome_buscar, padrao_barra=get_padrao_barra()))
 print("Tempo gasto com execução: ", time.time() - tempo_ini)
