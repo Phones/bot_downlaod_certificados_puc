@@ -27,6 +27,9 @@ class BotDownloadCertificado:
         # Instancia o chromedriver
         self.navegador = cria_driver(self.caminho_para_pasta_pdfs)
 
+        # Pega o número do evento que deu erro ao acessar
+        self.lista_erros_evento = []
+
 
     def verifica_e_cria_pasta_pdfs(self):
         caminho =  os.getcwd() + self.padrao_barra + self.nome_buscar.replace(' ', '_') + '_PDFs'
@@ -37,7 +40,7 @@ class BotDownloadCertificado:
 
     def salva_nomes_eventos(self):
         """Salva o nome de todos os eventos onde encontrou o nome buscado"""
-        arq = open(self.caminho_pasta_pdfs + self.padrao_barra + 'eventos_que_nome_existe.txt', 'w')
+        arq = open(self.caminho_para_pasta_pdfs + self.padrao_barra + 'eventos_que_nome_existe.txt', 'w')
         arq.write(self.nomes_eventos_nome_existe)
         arq.close()
 
@@ -63,27 +66,42 @@ class BotDownloadCertificado:
         xpath_do_pdf = '/html/body/div/div[1]/div/table/tbody/tr[' + str(lista_nomes.index(self.nome_buscar)) + ']/td/a'
         espera_um_elemento_por_xpath(navegador=self.navegador, xpath=xpath_do_pdf, tempo=30).click()
 
+    def consulta_evento(self, numero_evento):
+        print("Evento número: ", numero_evento)
+
+        # WebElement do evento
+        web_element_evento = self.get_web_element_evento(numero_evento=numero_evento)
+        nome_evento = web_element_evento.text
+        # Acessa o evento
+        web_element_evento.click()
+
+        lista_de_nomes_do_evento = self.get_lista_nomes_do_evento()
+        if self.nome_buscar in lista_de_nomes_do_evento:
+            print("ENCONTROU! NOME DO EVENTO: ", nome_evento)
+            self.nomes_eventos_nome_existe += nome_evento.replace('\n', '') + '\n'
+
+            self.downlaod_vertificado(lista_de_nomes_do_evento=lista_de_nomes_do_evento)
+
+        self.navegador.back()
+
     def percorre_eventos(self):
         """Passa por todos os eventos disponiveis, verificando se o buscado está na lista de nomes dos eventos"""
 
         print("Inicio do range de busca: {} / Fim do range de busca: {}".format(self.ini, self.fim))
         for i in range(self.ini, self.fim):
-            print("Evento número: ", i)
+            try:
+                self.consulta_evento(numero_evento=i)
+            except:
+                self.lista_erros_evento.append(i)
 
-            # WebElement do evento
-            web_element_evento = self.get_web_element_evento(numero_evento=i)
-            nome_evento = web_element_evento.text
-            # Acessa o evento
-            web_element_evento.click()
+    def percorre_eventos_com_erro(self):
+        # Volta para a página principal
+        self.navegador.get(self.url)
 
-            lista_de_nomes_do_evento = self.get_lista_nomes_do_evento()
-            if self.nome_buscar in lista_de_nomes_do_evento:
-                print("ENCONTROU! NOME DO EVENTO: ", nome_evento)
-                self.nomes_eventos_nome_existe += nome_evento.replace('\n', '') + '\n'
+        for num_evento_erro in self.lista_erros_evento:
+            self.consulta_evento(numero_evento=num_evento_erro)
 
-                self.downlaod_vertificado(lista_de_nomes_do_evento=lista_de_nomes_do_evento)
-
-            self.navegador.back()
+            
 
     def exec_bot(self):
         # Acessa a pagina com todos os eventos
@@ -95,3 +113,7 @@ class BotDownloadCertificado:
 
         # Gera o arquivo com os nomes dos eventos em que encontrou o nome
         self.salva_nomes_eventos()
+
+        self.percorre_eventos_com_erro()
+
+        self.navegador.close()
