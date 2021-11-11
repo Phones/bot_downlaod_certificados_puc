@@ -2,12 +2,12 @@ from Helpers.helpers import *
 
 
 class BotDownloadCertificado:
-    def __init__(self, nome_buscar, ini, fim, padrao_barra) -> None:
+    def __init__(self, nome_buscar, ini, fim, padrao_barra, caminho_para_pasta_download) -> None:
         # Inicio e Fim do range de busca da thread
         self.ini, self.fim = ini, fim
 
         # Nome que será buscado nos eventos
-        self.nome_buscar = nome_buscar.upper()
+        self.nome_buscar = nome_buscar
 
         # Armazena nome dos eventos em que o bot encontrou o nome buscado
         self.nomes_eventos_nome_existe = ''
@@ -22,7 +22,7 @@ class BotDownloadCertificado:
         self.padrao_barra = padrao_barra
 
         # Verifica se a pasta já existe, se não cria a pasta e retorna o caminho
-        self.caminho_para_pasta_pdfs = self.verifica_e_cria_pasta_pdfs()
+        self.caminho_para_pasta_pdfs = caminho_para_pasta_download
 
         # Instancia o chromedriver
         self.navegador = cria_driver(self.caminho_para_pasta_pdfs)
@@ -31,17 +31,14 @@ class BotDownloadCertificado:
         self.lista_erros_evento = []
 
 
-    def verifica_e_cria_pasta_pdfs(self):
-        caminho =  os.getcwd() + self.padrao_barra + self.nome_buscar.replace(' ', '_') + '_PDFs'
-        if not os.path.exists(caminho):
-            os.makedirs(caminho)
-
-        return caminho
-
     def salva_nomes_eventos(self):
         """Salva o nome de todos os eventos onde encontrou o nome buscado"""
+        arq = open(self.caminho_para_pasta_pdfs + self.padrao_barra + 'eventos_que_nome_existe.txt', 'r')
+        conteudo_arquivo = arq.read()
+        arq.close()
+
         arq = open(self.caminho_para_pasta_pdfs + self.padrao_barra + 'eventos_que_nome_existe.txt', 'w')
-        arq.write(self.nomes_eventos_nome_existe)
+        arq.write(conteudo_arquivo + self.nomes_eventos_nome_existe)
         arq.close()
 
     def coleta_quantidade_de_eventos(self) -> int:
