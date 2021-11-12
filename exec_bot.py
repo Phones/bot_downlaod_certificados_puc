@@ -2,6 +2,7 @@ import os
 import time
 import platform
 from threading import Thread
+from PyPDF2 import PdfFileMerger
 from BotDownloadCertificado import BotDownloadCertificado
 
 tempo_ini = time.time()
@@ -74,6 +75,23 @@ def exec_threads(lista_treads):
 
 
 
+def mescla_pdfs(caminho_pasta_com_pdfs):
+    os.chdir(caminho_pasta_com_pdfs)
+    pdfs = os.listdir()
+    print("Quantidade de certificados: ", len(pdfs))
+    merger = PdfFileMerger()
+
+    for pdf in pdfs:
+        if '.pdf' in pdf:
+            merger.append(pdf)
+
+    merger.write("pdf_resultante.pdf")
+    merger.close()
+
+
+
+
+
 nome_buscar = input("Digite seu nome completo: ")
 nome_buscar = nome_buscar.upper()
 quantidade_threads = 2
@@ -88,5 +106,8 @@ print("-------------------------------------------------------------------------
 '''
 padrao_barra=get_padrao_barra()
 caminho_para_pasta_download = verifica_e_cria_pasta_pdfs(padrao_barra=padrao_barra, nome_buscar=nome_buscar)
+
 exec_threads(monta_lista_threads(quantidade_threads=quantidade_threads, nome_buscar=nome_buscar, padrao_barra=padrao_barra, caminho_para_pasta_download=caminho_para_pasta_download))
 print("Tempo gasto com execução: ", time.time() - tempo_ini)
+
+mescla_pdfs(caminho_pasta_com_pdfs=caminho_para_pasta_download + padrao_barra)

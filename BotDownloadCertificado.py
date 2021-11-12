@@ -98,8 +98,6 @@ class BotDownloadCertificado:
         for num_evento_erro in self.lista_erros_evento:
             self.consulta_evento(numero_evento=num_evento_erro)
 
-            
-
     def exec_bot(self):
         # Acessa a pagina com todos os eventos
         self.navegador.get(self.url)

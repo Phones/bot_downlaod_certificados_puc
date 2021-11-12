@@ -5,6 +5,7 @@ import platform
 from time import sleep
 from threading import *
 from selenium import webdriver
+from PyPDF2 import PdfFileMerger
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
